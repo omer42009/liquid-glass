@@ -7,11 +7,9 @@ Tweak inner shadows, tint, frost blur, noise distortion and swap out the backgro
 
 ---
 
-## 🎨 Demo
+## 🔗 Live Demo
 
-1. Clone or download this repo.
-2. Open `index.html` in **Chrome on macOS** (untested on Safari).
-3. Use the control panel to play with the effect.
+[Try it out here → https://liquid-glass-eta.vercel.app/](https://liquid-glass-eta.vercel.app/)
 
 ---
 
@@ -28,7 +26,10 @@ Tweak inner shadows, tint, frost blur, noise distortion and swap out the backgro
 
 ## 🛠 Usage
 
-Open `index.html` and use the on-screen sliders and color pickers. All changes are applied via CSS variables and an SVG filter.
+1. Open `index.html` in **Chrome on macOS** (untested on Safari).
+2. Use the on-screen sliders and color pickers to adjust the effect.
+
+Or simply visit the **Live Demo** link above.
 
 ---
 
