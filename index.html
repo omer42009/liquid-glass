@@ -13,8 +13,8 @@
         :root {
             /* Inner shadow */
             --shadow-offset: 0;
-            --shadow-blur: 7px;
-            --shadow-spread: 0px;
+            --shadow-blur: 20px;
+            --shadow-spread: -5px;
             --shadow-color: rgba(255, 255, 255, 0.7);
 
             /* Painted glass */
@@ -27,6 +27,9 @@
             /* SVG noise/distortion */
             --noise-frequency: 0.008;
             --distortion-strength: 77;
+
+            /* Outer shadow blur */
+            --outer-shadow-blur: 24px;
         }
 
         body {
@@ -96,6 +99,7 @@
             isolation: isolate;
             touch-action: none;
             /* enable pointer dragging on touch */
+            box-shadow: 0px 6px var(--outer-shadow-blur) rgba(0, 0, 0, 0.2);
         }
 
         .glassDiv::before {
@@ -152,8 +156,8 @@
         <h2>Inner Shadow</h2>
         <label>Color: <input type="color" id="shadow-color" value="#ffffff"
                 style="width: 30px; height: 30px; border-radius: 4px;" /></label>
-        <label>Blur: <input type="range" id="shadow-blur" min="0" max="20" value="7" />px</label>
-        <label>Spread: <input type="range" id="shadow-spread" min="-10" max="10" value="0" />px</label>
+        <label>Blur: <input type="range" id="shadow-blur" min="0" max="20" value="20" />px</label>
+        <label>Spread: <input type="range" id="shadow-spread" min="-10" max="10" value="-5" />px</label>
 
         <h2>Glass Tint</h2>
         <label>Tint Color: <input type="color" id="tint-color" value="#ffffff"
@@ -167,6 +171,9 @@
         <label>Noise Freq: <input type="range" id="noise-frequency" min="0" max="0.02" step="0.001"
                 value="0.008" /></label>
         <label>Strength: <input type="range" id="distortion-strength" min="0" max="200" value="77" /></label>
+
+        <!-- <h2>Outer Shadow</h2>
+        <label>Blur: <input type="range" id="outer-shadow-blur" min="0" max="50" value="10" />px</label> -->
 
         <h2>Background Image</h2>
         <label>URL: <input type="text" id="bg-url" placeholder="https://..." /></label>
@@ -210,14 +217,17 @@
                 'shadow-spread': ['--shadow-spread', v => v + 'px'],
                 'tint-color': ['--tint-color', v => v.match(/\w\w/g).map(h => parseInt(h, 16)).join(',')],
                 'tint-opacity': ['--tint-opacity', v => v / 100],
-                'frost-blur': ['--frost-blur', v => v + 'px']
+                'frost-blur': ['--frost-blur', v => v + 'px'],
+                // 'outer-shadow-blur': ['--outer-shadow-blur', v => v + 'px']
             };
 
             function updateAll() {
                 Object.entries(controls).forEach(([id, [cssVar, fn]]) => {
                     const el = document.getElementById(id);
                     if (el) setVar(cssVar, fn(el.value));
+                    console.log(`id: ${id} | value:${el.value}`)
                 });
+
                 updateSVG();
                 updateBackground();
             }
