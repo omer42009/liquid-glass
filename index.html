@@ -31,14 +31,16 @@
 
         body {
             margin: 0;
-            height: 200vh;
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             background:
-                url('https://plus.unsplash.com/premium_photo-1749137444919-2bf7d6964d1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0') center/cover no-repeat;
+                url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfDB8fGVufDB8fHx8fA%3D%3D') center/cover no-repeat;
             font-family: sans-serif;
             font-weight: 300;
+            position: relative;
+            /* for absolute children */
         }
 
         #controls {
@@ -53,7 +55,6 @@
             max-width: 280px;
             max-height: 90vh;
             overflow-y: auto;
-            transition: width 0.2s, left 0.2s, bottom 0.2s, top 0.2s;
         }
 
         #controls h2 {
@@ -84,16 +85,14 @@
         }
 
         .glassDiv {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            position: absolute;
             width: 300px;
             height: 200px;
             border-radius: 28px;
-            cursor: pointer;
-            transition: width 0.2s, height 0.2s, top 0.2s;
+            cursor: move;
             isolation: isolate;
+            touch-action: none;
+            /* enable pointer dragging on touch */
         }
 
         .glassDiv::before {
@@ -117,21 +116,16 @@
             filter: url(#glass-distortion);
             isolation: isolate;
             -webkit-backdrop-filter: blur(var(--frost-blur));
-            backdrop-filter: blur(var(--frost-blur));
             -webkit-filter: url("#glass-distortion");
         }
 
-        /* ——— Responsive tweaks ——— */
         @media (max-width: 600px) {
-
-            /* move glass up & shrink */
             .glassDiv {
                 top: 30%;
                 width: 250px;
                 height: 120px;
             }
 
-            /* full-width controls at bottom */
             #controls {
                 top: auto;
                 bottom: 0;
@@ -141,7 +135,6 @@
                 border-radius: 0;
             }
 
-            /* inputs span full width */
             #controls input[type=range],
             #controls input[type=text] {
                 width: 100%;
@@ -154,12 +147,14 @@
 
     <div id="controls">
         <h2>Inner Shadow</h2>
-        <label>Color: <input type="color" id="shadow-color" value="#ffffff" /></label>
+        <label>Color: <input type="color" id="shadow-color" value="#ffffff"
+                style="width: 30px; height: 30px; border-radius: 4px;" /></label>
         <label>Blur: <input type="range" id="shadow-blur" min="0" max="20" value="7" />px</label>
         <label>Spread: <input type="range" id="shadow-spread" min="-10" max="10" value="0" />px</label>
 
         <h2>Glass Tint</h2>
-        <label>Tint Color: <input type="color" id="tint-color" value="#ffffff" /></label>
+        <label>Tint Color: <input type="color" id="tint-color" value="#ffffff"
+                style="width: 30px; height: 30px; border-radius: 4px;" /></label>
         <label>Opacity: <input type="range" id="tint-opacity" min="0" max="100" value="4" />%</label>
 
         <h2>Frost Blur</h2>
@@ -190,15 +185,13 @@
     <script>
         (function () {
             const root = document.documentElement;
-            function setVar(name, val) { root.style.setProperty(name, val) }
+            function setVar(name, val) { root.style.setProperty(name, val); }
 
             function updateSVG() {
                 const freq = parseFloat(document.getElementById('noise-frequency').value);
                 const scale = document.getElementById('distortion-strength').value;
-                document.querySelector('feTurbulence')
-                    .setAttribute('baseFrequency', `${freq} ${freq}`);
-                document.querySelector('feDisplacementMap')
-                    .setAttribute('scale', scale);
+                document.querySelector('feTurbulence').setAttribute('baseFrequency', `${freq} ${freq}`);
+                document.querySelector('feDisplacementMap').setAttribute('scale', scale);
             }
 
             function updateBackground() {
@@ -212,22 +205,15 @@
                 'shadow-color': ['--shadow-color', v => v],
                 'shadow-blur': ['--shadow-blur', v => v + 'px'],
                 'shadow-spread': ['--shadow-spread', v => v + 'px'],
-                'tint-color': ['--tint-color', v => {
-                    const c = v.match(/\w\w/g).map(h => parseInt(h, 16));
-                    return c.join(',');
-                }],
+                'tint-color': ['--tint-color', v => v.match(/\w\w/g).map(h => parseInt(h, 16)).join(',')],
                 'tint-opacity': ['--tint-opacity', v => v / 100],
                 'frost-blur': ['--frost-blur', v => v + 'px']
             };
 
             function updateAll() {
                 Object.entries(controls).forEach(([id, [cssVar, fn]]) => {
-
-
                     const el = document.getElementById(id);
                     if (el) setVar(cssVar, fn(el.value));
-
-                    console.log(`id: ${id} | value: ${el.value}`)
                 });
                 updateSVG();
                 updateBackground();
@@ -238,6 +224,42 @@
             );
             updateAll();
         })();
+
+        // ——— fully draggable in X and Y via Pointer Events ———
+        dragElement(document.querySelector('.glassDiv'));
+        function dragElement(elmnt) {
+            let startX = 0, startY = 0;
+
+            const onPointerDown = e => {
+                e.preventDefault();
+                const rect = elmnt.getBoundingClientRect();
+                elmnt.style.position = 'absolute';
+                elmnt.style.top = rect.top + 'px';
+                elmnt.style.left = rect.left + 'px';
+                elmnt.style.transform = 'none';
+
+                startX = e.clientX;
+                startY = e.clientY;
+                document.addEventListener('pointermove', onPointerMove);
+                document.addEventListener('pointerup', onPointerUp, { once: true });
+            };
+
+            const onPointerMove = e => {
+                e.preventDefault();
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                startX = e.clientX;
+                startY = e.clientY;
+                elmnt.style.left = (elmnt.offsetLeft + dx) + 'px';
+                elmnt.style.top = (elmnt.offsetTop + dy) + 'px';
+            };
+
+            const onPointerUp = () => {
+                document.removeEventListener('pointermove', onPointerMove);
+            };
+
+            elmnt.addEventListener('pointerdown', onPointerDown);
+        }
     </script>
 </body>
 
