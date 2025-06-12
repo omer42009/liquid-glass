@@ -1,9 +1,13 @@
 # Liquid Glass
 
+
 An interactive demo of an **iOS 26–style Liquid Glass** effect for the web.  
 Tweak inner shadows, tint, frost blur, noise distortion and swap out the background image—all live in your browser.
 
--   **Please file issues** if you spot any quirks or wish to improve or add more controls!
+![liquid-glass](https://github.com/user-attachments/assets/7e1525c7-95a0-4a20-9f3b-ba58246f2f3a)
+
+
+-   **Please file issues** Does not work on webkit/gecko - Only Chromium(blink) based browsers are supported. if you spot any quirks or wish to improve or add more controls!
 
 ---
 
